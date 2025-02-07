@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+#from flask_cors import CORS
 import math
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 def is_prime(n):
     if n <= 1:
@@ -38,11 +38,24 @@ def get_fun_fact(n):
 
 @app.route('/api/classify-number', methods=['GET'])
 def classify_number():
-    number = request.args.get('number')
-    if not number or not number.lstrip('-').isdigit():
-        return jsonify({"number": str(number), "error": True}), 400
+    # Ensure the request has JSON data
+    if not request.is_json:
+        return jsonify({"error": "Request must be JSON"}), 400
 
-    number = int(number)
+    # Get JSON data from the request
+    data = request.get_json()
+
+    # Check if 'number' is present in the JSON payload
+    if 'number' not in data:
+        return jsonify({"error": "Missing 'number' in JSON payload"}), 400
+
+    number = data['number']
+
+    # Validate that the input is a valid integer
+    if not isinstance(number, int):
+        return jsonify({"error": "Input must be a valid integer"}), 400
+
+    # Calculate properties
     properties = []
     if is_armstrong(number):
         properties.append("armstrong")
@@ -51,6 +64,7 @@ def classify_number():
     else:
         properties.append("odd")
 
+    # Prepare response
     response = {
         "number": number,
         "is_prime": is_prime(number),
@@ -59,11 +73,19 @@ def classify_number():
         "digit_sum": digit_sum(number),
         "fun_fact": get_fun_fact(number)
     }
+
+    # Return JSON response with correct Content-Type header
     return jsonify(response), 200
 
+# Error handler for 404 (Not Found)
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({"error": "Endpoint not found"}), 404
 
- 
+# Error handler for 500 (Internal Server Error)
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
-
