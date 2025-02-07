@@ -38,18 +38,9 @@ def get_fun_fact(n):
 
 @app.route('/api/classify-number', methods=['GET'])
 def classify_number():
-    # Ensure the request has JSON data
-    if not request.is_json:
-        return jsonify({"error": "Request must be JSON"}), 400
 
-    # Get JSON data from the request
-    data = request.get_json()
-
-    # Check if 'number' is present in the JSON payload
-    if 'number' not in data:
-        return jsonify({"error": "Missing 'number' in JSON payload"}), 400
-
-    number = data['number']
+    # get number from query params
+    number =int(request.args["number"])
 
     # Validate that the input is a valid integer
     if not isinstance(number, int):
