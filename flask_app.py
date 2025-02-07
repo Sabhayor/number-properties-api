@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify
-#from flask_cors import CORS
+from flask_cors import CORS
 import math
 
 app = Flask(__name__)
-#CORS(app)
+CORS(app)
 
 def is_prime(n):
     if n <= 1:
